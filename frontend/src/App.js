@@ -1,8 +1,19 @@
-import React from 'react'
+import { Container } from 'react-bootstrap'
+import { Outlet } from 'react-router-dom'
+import Header from './conponents/Header'
+import Footer from './conponents/Footer'
 
 const App = () => {
   return (
-    <h1>Welcome To ProShop</h1>
+    <>
+    <Header />
+    <main>
+      <Container>
+        <Outlet />
+      </Container>
+    </main>
+    <Footer />
+    </>
   )
 }
 

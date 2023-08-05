@@ -5,11 +5,13 @@
  */
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import { apiSlice } from './slices/apiSlice';
+import cartSliceReducer from './slices/cartSlice'
 
 const store = configureStore({
     // 当 API 请求发生时，apiSlice.reducer 将负责处理相关的状态更新。
     reducer: {
         [apiSlice.reducerPath]: apiSlice.reducer,
+        cart: cartSliceReducer,
     },
     // 使用 getDefaultMiddleware 函数来获取默认的中间件列表，
     // 并使用 concat 方法将 apiSlice.middleware 添加到默认中间件的末尾。

@@ -15,8 +15,10 @@ import cookieParser from 'cookie-parser';
 dotenv.config();
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
-import productRoutes from './routes/productRoutes.js'
-import userRoutes from './routes/userRoutes.js'
+import productRoutes from './routes/productRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+
 const port = process.env.PORT || 5000;
 
 connectDB(); // Connect to MongoDB
@@ -34,10 +36,14 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
-//当收到 /api/products 这个路径的请求时，应该使用 productRoutes 路由模块来处理这个请求。
-app.use('/api/products', productRoutes); 
-
+app.use('/api/products', productRoutes); //当收到 /api/products 这个路径的请求时，应该使用 productRoutes 路由模块来处理这个请求。
 app.use('/api/users', userRoutes); 
+app.use('/api/orders', orderRoutes);
+
+// 提供一个 API 接口 /api/config/paypal，用于客户端获取 PayPal 的客户端 ID。
+// 在客户端发起支付时需要使用这个 ID 来和 PayPal 进行通信。
+app.get('/api/config/paypal', (req, res) => res.send({
+    clientId: process.env.PAYPAL_CLIENT_ID})); 
 
 app.use(notFound);
 app.use(errorHandler);

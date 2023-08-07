@@ -6,9 +6,9 @@ import { updateCart } from "../utils/cartUtils";
 // 则使用 JSON.parse() 方法将其解析为 JavaScript 对象，并将其作为 initialState 的初始值。
 // 如果本地存储中没有购物车数据或者数据解析失败，
 // 则使用一个初始的空购物车对象 {cartItems: []} 作为 initialState 的初始值。
-const initialState = localStorage.getItem("cart") ? 
-        JSON.parse (localStorage.getItem("cart")) :
-        {cartItems: []};
+const initialState = localStorage.getItem('cart') ? 
+        JSON.parse (localStorage.getItem('cart')) :
+        {cartItems: [], shippingAddress: {}, paymentMethod: 'PayPal' };
 
 const cartSlice = createSlice({
     name: "cart",
@@ -31,11 +31,32 @@ const cartSlice = createSlice({
         state.cartItems = state.cartItems.filter((x) => x._id !== action.payload);
 
         return updateCart(state);
-      }
+      },
+      saveShippingAddress: (state, action) => {
+        state.shippingAddress = action.payload;
+        return updateCart(state);
+      },
+      savePaymentMethod: (state, action) => {
+        state.paymentMethod = action.payload;
+        return updateCart(state);
+      },
+      clearCartItems: (state, action) => {
+        state.cartItems = [];
+        localStorage.setItem('cart', JSON.stringify(state));
+      },
+      // NOTE: here we need to reset state for when a user logs out so the next
+      // user doesn't inherit the previous users cart and shipping
+      // resetCart: (state) => (state = initialState),
     },
 });
 
-export const { addToCart, removeFromCart } = cartSlice.actions;
+export const { 
+  addToCart, 
+  removeFromCart, 
+  saveShippingAddress, 
+  savePaymentMethod,
+  clearCartItems, 
+} = cartSlice.actions;
 
 export default cartSlice.reducer;
 

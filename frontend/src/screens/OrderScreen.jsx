@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import Message from '../conponents/Message';
 import Loader from '../conponents/Loader';
 import {
-    // useDeliverOrderMutation,
+    useDeliverOrderMutation,
     useGetOrderDetailsQuery,
     useGetPaypalClientIdQuery,
     usePayOrderMutation,
@@ -15,7 +15,7 @@ import {
 
   
   const OrderScreen = () => {
-    // 使用 useParams 钩子从 URL 中获取订单的 ID，并将其赋值给变量 orderId。
+    // 使用 useParams Hook 从 URL 中获取订单的 ID，并将其赋值给变量 orderId。
     const { id: orderId } = useParams();
 
     const {
@@ -26,6 +26,8 @@ import {
       } = useGetOrderDetailsQuery(orderId);
 
     const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+
+    const [deliverOrder, { isLoading: loadingDeliver }] = useDeliverOrderMutation();
 
     const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
@@ -84,6 +86,17 @@ import {
         }).then((orderId) => {
             return orderId;
         });
+    }
+
+    const deliverHandler = async () => {
+        try {
+            await deliverOrder(orderId);
+            refetch();
+            toast.success('Order delivered');
+        } catch (err) {
+            toast.error(err?.data?.message || err.message);
+        }
+        
     }
 
     return isLoading ? (
@@ -211,6 +224,20 @@ import {
                                 ></PayPalButtons>
                             </div>
                         )}
+                        </ListGroup.Item>
+                    )}
+
+                    {loadingDeliver && <Loader />}
+                    {userInfo && userInfo.isAdmin &&
+                    order.isPaid && !order.isDelivered && (
+                        <ListGroup.Item>
+                        <Button
+                            type='button'
+                            className='btn btn-block'
+                            onClick={deliverHandler}
+                        >
+                            Mark As Delivered
+                        </Button>
                         </ListGroup.Item>
                     )}
                     </ListGroup>

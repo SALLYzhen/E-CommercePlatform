@@ -3,15 +3,21 @@
  * 并通过 useGetProductsQuery hook 将其暴露给组件，
  * 从而实现了在应用中更方便、高效地获取产品数据。
  */
-import { PRODUCTS_URL } from "../constants";
+import { PRODUCTS_URL, UPLOAD_URL } from "../constants";
 import { apiSlice } from "./apiSlice";
 
 export const productsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getProducts: builder.query({
-            query: () => ({
+            query: ({ keyword, pageNumber }) => ({
                 url: PRODUCTS_URL,
+                params: {
+                  keyword,
+                  pageNumber,
+                },
             }),
+            // 当 getProducts 这个 query 返回的数据被缓存时，它会被关联到一个名为 'Product' 的缓存标签。
+            // 这意味着当从服务器获取到产品列表数据后，这些数据将与 'Product' 标签相关联，并存储在缓存中。
             providesTags: ['Product'],
             keepUnusedDataFor: 5,// 表示在请求结果未被使用的情况下，保持结果的缓存时间
         }),
@@ -39,6 +45,32 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Products'],
           }),
+        uploadProductImage: builder.mutation({
+            query: (data) => ({
+              url: `${UPLOAD_URL}`,
+              method: 'POST',
+              body: data,
+            }),
+          }),
+        deleteProduct: builder.mutation({
+            query: (productId) => ({
+              url: `${PRODUCTS_URL}/${productId}`,
+              method: 'DELETE',
+            }),
+            providesTags: ['Product'],
+          }),
+        createReview: builder.mutation({
+            query: (data) => ({
+              url: `${PRODUCTS_URL}/${data.productId}/reviews`,
+              method: 'POST',
+              body: data,
+            }),
+            invalidatesTags: ['Product'],
+          }),
+        getTopProducts: builder.query({
+            query: () => `${PRODUCTS_URL}/top`,
+            keepUnusedDataFor: 5,
+          }),
     }),
 });
 //通过 productsApiSlice 对象导出了 useGetProductsQuery 方法，
@@ -49,4 +81,8 @@ export const {
     useGetProductDetailsQuery,
     useCreateProductMutation,
     useUpdateProductMutation,
+    useUploadProductImageMutation,
+    useDeleteProductMutation,
+    useCreateReviewMutation,
+    useGetTopProductsQuery,
 } = productsApiSlice;

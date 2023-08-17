@@ -34,10 +34,6 @@ app.use(express.urlencoded({ extended: true}));
 // Cookie parser middleware
 app.use(cookieParser());
 
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
-
 app.use('/api/products', productRoutes); //当收到 /api/products 这个路径的请求时，应该使用 productRoutes 路由模块来处理这个请求。
 app.use('/api/users', userRoutes); 
 app.use('/api/orders', orderRoutes);

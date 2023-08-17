@@ -48,11 +48,23 @@ app.use('/api/upload', uploadRoutes);
 app.get('/api/config/paypal', (req, res) => res.send({
     clientId: process.env.PAYPAL_CLIENT_ID})); 
 
-// 将上传的文件（通常存储在 /uploads 目录中）通过 Express 的静态文件服务暴露出来，
-// 以便在浏览器中可以通过 URL 访问这些文件。例如，如果上传的图片名为 my-image.jpg，
-// 那么可以通过访问 /uploads/my-image.jpg 来获取并显示该图片。
-const __dirname = path.resolve();
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+if (process.env.NODE_ENV === 'production') {
+    const __dirname = path.resolve(); //获取当前脚本文件的绝对路径并存储在 __dirname 变量中。
+    app.use('/uploads', express.static('/var/data/uploads'));
+    app.use(express.static(path.join(__dirname, '/frontend/build')));
+    app.get('*', (req, res) =>
+      res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'))
+    ); // 当在生产环境下，对于任何未匹配到其他路由的请求，都返回前端应用的 index.html 文件，以便进行单页应用的路由
+  } else {
+    // 将上传的文件（通常存储在 /uploads 目录中）通过 Express 的静态文件服务暴露出来，
+    // 以便在浏览器中可以通过 URL 访问这些文件。例如，如果上传的图片名为 my-image.jpg，
+    // 那么可以通过访问 /uploads/my-image.jpg 来获取并显示该图片。
+    const __dirname = path.resolve();
+    app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+    app.get('/', (req, res) => {
+      res.send('API is running....');
+    });
+  }
 
 app.use(notFound);
 app.use(errorHandler);
